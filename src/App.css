@@ -310,6 +310,7 @@ h6 {
   position: relative;
 }
 .img-container img {
+  height: 30vh;
   width: 100%;
   display: block;
   transition: var(--mainTransition);
@@ -437,7 +438,7 @@ h6 {
 /* end of single room*/
 /* roomlist */
 .roomslist {
-  padding: 5rem 0;
+  padding: 2rem 0;
 }
 .roomslist-center {
   width: 80vw;

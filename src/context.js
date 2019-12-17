@@ -1,5 +1,13 @@
 import React, { Component } from 'react';
-import items from './data';
+// uncomment for local items, and change rooms variable to items instead of response.items
+// import items from './data';
+import Client from './Contentful';
+
+    // test access to contently
+    Client.getEntries({
+        content_type: 'beachResortRoom'
+    }).then(response => console.log(response));
+
 
 const RoomContext = React.createContext();
 
@@ -20,30 +28,51 @@ class RoomProvider extends Component {
         pets: false,
     };
 
-    componentDidMount() {
-        let rooms = this.formatData(items)
-        let featuredRooms = rooms.filter(room => room.featured === true);
-        let maxPrice = Math.max(...rooms.map(item => item.price));
-        let maxSize = Math.max(...rooms.map(item => item.size));
+    // get data from contently
+    getData = async () => {
+        try {
+            let response = await Client.getEntries({ 
+                content_type: 'beachResortRoom',
+                order: 'sys.createdAt' 
+            });
+            let rooms = this.formatData(response.items)
+            let featuredRooms = rooms.filter(room => room.featured === true);
+            let maxPrice = Math.max(...rooms.map(item => item.price));
+            let maxSize = Math.max(...rooms.map(item => item.size));
 
-        this.setState({
-            rooms, 
-            featuredRooms,
-            sortedRooms: rooms,
-            loading: false,
-            maxPrice,
-            maxSize
-        })
+            this.setState({
+                rooms, 
+                featuredRooms,
+                sortedRooms: rooms,
+                loading: false,
+                maxPrice,
+                maxSize
+            })  ;
+        } catch (error) {
+            console.log(error);
+            
+        }
+    }
+
+    componentDidMount() {
+        // get data when RoomProvider mounts to main Component
+        this.getData();
     }
 
     formatData(items) {
+        // store a temp item from individual items
         let tempItems = items.map(item => {
-            let id = item.sys.id
-            let images = item.fields.images.map(image => image.fields.file.url)
+            // store id
+            let id = item.sys.id;
+            // store images
+            let images = item.fields.images.map(image => image.fields.file.url);
 
+            // store entire room
             let room = {...item.fields, images, id};
+            // return formatted room data
             return room;
         });
+        // return array of formatted room data
         return tempItems;
     }
 
